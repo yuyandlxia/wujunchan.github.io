@@ -1,0 +1,727 @@
+<!DOCTYPE html>
+<html lang="zh-CN" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>用户中心主义智能制造 | 企业智能决策报告</title>
+    
+    <!-- Placeholder Comments as per requirements -->
+    <!-- Chosen Palette: Corporate Professional Neutrals -->
+    <!-- Application Structure Plan: A single-page dashboard with thematic sections (Overview, Product Insights, Reviewer Management, Core Algorithms) accessible via a fixed sidebar. This structure prioritizes user-guided exploration over a linear report format. The key interaction is a simulation of the 'Market Feedback Correction' mechanism, which dynamically updates charts and tables to visually demonstrate the paper's core accountability loop, making the complex concept tangible and impactful. The design emphasizes clarity, professionalism, and data integrity, with added business KPIs and actionable insights. -->
+    <!-- Visualization & Content Choices: 
+        - Report Info: Initial product scores (Table 7). Goal: Compare product performance. Viz: Bar Chart (Chart.js). Interaction: Hover for details. Justification: Clear comparison of multiple items. Added KPIs for max/avg score.
+        - Report Info: AI-optimized formulas (Tables 14, 15). Goal: Inform on optimal outcomes. Viz: HTML Cards. Interaction: Static display. Justification: Presents key takeaways clearly. Added AI-driven insights.
+        - Report Info: Reviewer contributions (Table 9, 21). Goal: Show impact of market feedback. Viz: Dynamic Bar Chart & Table (Chart.js, HTML). Interaction: Button click to trigger 'before' and 'after' states. Justification: Creates a powerful narrative of the accountability algorithm, which is a core innovation of the paper. Added KPIs for reviewer base and star distribution summary.
+        - Report Info: Star rating distribution (Table 21). Goal: Compare group stats before/after feedback. Viz: Donut Chart (Chart.js). Interaction: Updates with main simulation. Justification: Shows aggregate changes effectively.
+        - Report Info: Core algorithm concepts. Goal: Educate and build trust. Viz: Styled HTML/CSS diagrams. Interaction: Static display. Justification: Simplifies complex ideas without technical overhead.
+    -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            /* Professional Corporate Palette */
+            --bg-main: #F9F9F9; /* Light off-white background */
+            --bg-card: #FFFFFF; /* Pure white cards */
+            --text-primary: #2C3E50; /* Dark blue-grey for main text */
+            --text-secondary: #7F8C8D; /* Medium grey for secondary text */
+            --color-primary: #4A6D7C; /* Authoritative blue-grey */
+            --color-primary-light: #D0DCE0; /* Softer blue-grey for highlights */
+            --color-accent-positive: #27AE60; /* Professional green for positive changes */
+            --color-accent-negative: #E74C3C; /* Professional red for negative changes */
+            --border-color: #E0E0E0; /* Light grey for borders */
+            --shadow-color: rgba(0, 0, 0, 0.08); /* Subtle shadow */
+        }
+        body {
+            font-family: 'Inter', 'Noto Sans SC', sans-serif;
+            background-color: var(--bg-main);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+        .sidebar-link {
+            transition: all 0.2s ease-in-out;
+            font-weight: 500;
+        }
+        .sidebar-link.active, .sidebar-link:hover {
+            background-color: var(--color-primary-light);
+            color: var(--color-primary);
+            transform: translateX(4px);
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 800px; /* Max width for charts */
+            margin-left: auto;
+            margin-right: auto;
+            height: 400px;
+            max-height: 50vh;
+        }
+        @media (max-width: 768px) {
+            .chart-container {
+                height: 300px;
+                max-height: 60vh;
+            }
+        }
+        .card {
+            background-color: var(--bg-card);
+            border-radius: 0.5rem; /* Slightly less rounded for professionalism */
+            border: 1px solid var(--border-color);
+            box-shadow: 0 6px 12px -2px var(--shadow-color); /* More pronounced, professional shadow */
+            padding: 2rem; /* Increased padding for more breathing room */
+        }
+        .kpi-value {
+            color: var(--color-primary);
+        }
+        .change-positive {
+            color: var(--color-accent-positive);
+        }
+        .change-negative {
+            color: var(--color-accent-negative);
+        }
+        .flow-diagram-icon {
+            font-size: 1.8rem; /* Slightly smaller, more refined icons */
+            color: var(--color-primary);
+        }
+        .btn {
+            background-color: var(--color-primary);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.375rem; /* Slightly less rounded */
+            font-weight: 600;
+            transition: background-color 0.2s ease, transform 0.1s ease;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .btn:hover {
+            background-color: color-mix(in srgb, var(--color-primary) 90%, black 10%);
+            transform: translateY(-1px);
+        }
+        .btn:active {
+            transform: translateY(0);
+            box-shadow: none;
+        }
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        .kpi-item {
+            background-color: var(--bg-main);
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+            border: 1px solid var(--border-color);
+            text-align: center;
+        }
+        .kpi-item .value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--color-primary);
+            margin-bottom: 0.5rem;
+        }
+        .kpi-item .label {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+        .ai-insight-box {
+            background-color: color-mix(in srgb, var(--bg-main) 80%, var(--color-primary-light) 20%);
+            border-left: 4px solid var(--color-primary);
+            padding: 1.5rem;
+            border-radius: 0.5rem;
+            margin-top: 1.5rem;
+        }
+        .ai-insight-box h4 {
+            color: var(--color-primary);
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+        .ai-insight-box p {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+        }
+    </style>
+</head>
+
+<body class="flex">
+
+    <!-- Sidebar Navigation -->
+    <aside class="w-64 h-screen sticky top-0 bg-white border-r border-[var(--border-color)] p-6 flex-col justify-between hidden lg:flex">
+        <div>
+            <div class="flex items-center gap-3 mb-10">
+                <div class="p-2 bg-[var(--color-primary)] rounded-md text-white font-bold text-xl">UCM</div>
+                <h1 class="text-xl font-bold text-[var(--text-primary)]">企业智能决策平台</h1>
+            </div>
+            <nav id="sidebar-nav" class="flex flex-col gap-3">
+                <a href="#overview" class="sidebar-link active flex items-center gap-3 px-4 py-2 rounded-md">
+                    <span class="text-lg">📊</span> 平台概览
+                </a>
+                <a href="#product-insights" class="sidebar-link flex items-center gap-3 px-4 py-2 rounded-md">
+                    <span class="text-lg">🔬</span> 产品洞察
+                </a>
+                <a href="#reviewer-management" class="sidebar-link flex items-center gap-3 px-4 py-2 rounded-md">
+                    <span class="text-lg">👥</span> 评客管理
+                </a>
+                <a href="#algorithms" class="sidebar-link flex items-center gap-3 px-4 py-2 rounded-md">
+                    <span class="text-lg">⚙️</span> 核心算法
+                </a>
+            </nav>
+        </div>
+        <div class="text-xs text-[var(--text-secondary)]">
+            <p>&copy; 2025 用户中心主义智能制造</p>
+            <p>企业智能决策报告</p>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="flex-1 p-6 sm:p-8 lg:p-12">
+        <div class="max-w-7xl mx-auto space-y-16">
+
+            <!-- Section 1: Overview -->
+            <section id="overview" class="space-y-8">
+                <h2 class="text-4xl font-bold text-[var(--text-primary)]">平台概览</h2>
+                <p class="text-xl text-[var(--text-secondary)] leading-relaxed">
+                    此报告是基于《服务共同富裕的用户中心主义智能制造》研究中的核心理念与数据转化为可交互的商业洞察。我们通过构建一个“用户共创+价值共享”的数字社区，系统性地解决企业在产品创新中面临的三大核心挑战。
+                </p>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <div class="card">
+                        <h3 class="font-bold text-xl mb-3 text-[var(--color-primary)]">🎯 需求精准捕捉</h3>
+                        <p class="text-base text-[var(--text-secondary)]">通过大规模、结构化的用户评价，精准量化用户偏好，揭示真实市场需求。</p>
+                    </div>
+                    <div class="card">
+                        <h3 class="font-bold text-xl mb-3 text-[var(--color-primary)]">🚀 优质产品研发</h3>
+                        <p class="text-base text-[var(--text-secondary)]">利用AI模型深度分析用户数据，智能推荐最佳产品配方，助力“爆款”产品打造。</p>
+                    </div>
+                    <div class="card">
+                        <h3 class="font-bold text-xl mb-3 text-[var(--color-primary)]">📈 市场共识加速</h3>
+                        <p class="text-base text-[var(--text-secondary)]">借助“评客运动”和市场反馈闭环机制，加速新产品在目标圈层的认知与推广，快速建立市场共识。</p>
+                    </div>
+                </div>
+                <div class="card">
+                    <h3 class="font-bold text-xl mb-6 text-center text-[var(--color-primary)]">创新生态闭环 (PDCA)</h3>
+                    <p class="text-center text-base text-[var(--text-secondary)] mb-8">平台的核心是一个持续迭代的闭环系统，将用户评价、AI优化与市场验证紧密结合，驱动产品不断进化，确保持续创新与价值实现。</p>
+                    <div class="flex flex-col md:flex-row items-center justify-center gap-6 md:gap-12 text-center">
+                        <div class="flex flex-col items-center">
+                            <div class="w-16 h-16 bg-[var(--color-primary-light)] rounded-full flex items-center justify-center flow-diagram-icon mb-2">📝</div>
+                            <h4 class="font-semibold text-lg text-[var(--text-primary)]">规划 (Plan)</h4>
+                            <p class="text-sm text-[var(--text-secondary)]">定义产品参数与目标</p>
+                        </div>
+                        <div class="text-3xl font-light text-[var(--color-primary)] transform rotate-90 md:rotate-0">→</div>
+                        <div class="flex flex-col items-center">
+                            <div class="w-16 h-16 bg-[var(--color-primary-light)] rounded-full flex items-center justify-center flow-diagram-icon mb-2">▶️</div>
+                            <h4 class="font-semibold text-lg text-[var(--text-primary)]">执行 (Do)</h4>
+                            <p class="text-sm text-[var(--text-secondary)]">收集用户评价数据</p>
+                        </div>
+                         <div class="text-3xl font-light text-[var(--color-primary)] transform rotate-90 md:rotate-0">→</div>
+                        <div class="flex flex-col items-center">
+                            <div class="w-16 h-16 bg-[var(--color-primary-light)] rounded-full flex items-center justify-center flow-diagram-icon mb-2">📊</div>
+                            <h4 class="font-semibold text-lg text-[var(--text-primary)]">检查 (Check)</h4>
+                            <p class="text-sm text-[var(--text-secondary)]">AI分析与模型优化</p>
+                        </div>
+                         <div class="text-3xl font-light text-[var(--color-primary)] transform rotate-90 md:rotate-0">→</div>
+                        <div class="flex flex-col items-center">
+                            <div class="w-16 h-16 bg-[var(--color-primary-light)] rounded-full flex items-center justify-center flow-diagram-icon mb-2">🔄</div>
+                            <h4 class="font-semibold text-lg text-[var(--text-primary)]">行动 (Act)</h4>
+                            <p class="text-sm text-[var(--text-secondary)]">市场验证与策略修正</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section 2: Product Insights -->
+            <section id="product-insights" class="space-y-8">
+                <h2 class="text-4xl font-bold text-[var(--text-primary)]">产品洞察</h2>
+                 <p class="text-xl text-[var(--text-secondary)] leading-relaxed">
+                    本节深入分析了风味小酒的性能表现。通过CPDFWA算法对原始用户评价进行校准，我们得出了各款产品的综合得分，并利用AI模型预测出理论上的最佳配方，为产品研发提供精准的数据指导。
+                </p>
+
+                <div class="kpi-grid">
+                    <div class="kpi-item">
+                        <div class="value" id="product-highest-score">--</div>
+                        <div class="label">最高产品得分</div>
+                    </div>
+                    <div class="kpi-item">
+                        <div class="value" id="product-average-score">--</div>
+                        <div class="label">平均产品得分</div>
+                    </div>
+                    <div class="kpi-item">
+                        <div class="value" id="product-evaluated-count">--</div>
+                        <div class="label">已评估产品数量</div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3 class="font-bold text-xl mb-4 text-[var(--color-primary)]">风味小酒综合得分概览</h3>
+                    <p class="text-base text-[var(--text-secondary)] mb-6">基于CPDFWA算法校准后的25款初始风味小酒综合得分。将鼠标悬停在条形上可查看具体分数。得分越高，用户体验评价越好。</p>
+                    <div class="chart-container">
+                        <canvas id="productScoresChart"></canvas>
+                    </div>
+                    <div class="ai-insight-box">
+                        <h4>AI洞察与业务建议：</h4>
+                        <p>
+                            当前产品得分分布显示，部分产品已获得较高用户认可。AI模型已识别出潜在的“爆款”配方。建议企业优先对高得分产品进行市场验证，并结合AI推荐的配方，加速新产品的研发与迭代。
+                        </p>
+                    </div>
+                </div>
+                <div class="card">
+                    <h3 class="font-bold text-xl mb-4 text-[var(--color-primary)]">AI驱动的最佳配方决策</h3>
+                    <p class="text-base text-[var(--text-secondary)] mb-6">通过BP神经网络与遗传算法（BP-GA）以及支持向量回归（SVR）模型，平台能够预测并推荐理论上的最优产品配方，显著提升研发效率。</p>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <div class="p-8 bg-[var(--bg-main)] rounded-lg border border-[var(--border-color)] shadow-sm">
+                            <h4 class="font-semibold text-lg text-[var(--text-primary)] mb-2">BP-GA 优化配方</h4>
+                            <p class="text-sm text-[var(--text-secondary)] mb-4">基于BP神经网络与遗传算法的优化结果。</p>
+                            <p class="text-5xl font-bold kpi-value mb-4">117 <span class="text-xl font-medium">分</span></p>
+                            <ul class="text-base space-y-2 text-[var(--text-secondary)] list-disc list-inside">
+                                <li>玉林小酒: 11.9%</li>
+                                <li>水溶C100: 74.6%</li>
+                                <li>苏打水: 13.5%</li>
+                            </ul>
+                            <div class="ai-insight-box mt-4">
+                                <p>
+                                    此配方在BP-GA模型中表现最佳，预测用户体验得分最高。其成分配比具有高度市场潜力。
+                                </p>
+                            </div>
+                        </div>
+                        <div class="p-8 bg-[var(--bg-main)] rounded-lg border border-[var(--border-color)] shadow-sm">
+                            <h4 class="font-semibold text-lg text-[var(--text-primary)] mb-2">SVR 优化配方</h4>
+                            <p class="text-sm text-[var(--text-secondary)] mb-4">基于支持向量回归与高密度网格搜索的优化结果。</p>
+                            <p class="text-5xl font-bold kpi-value mb-4">111 <span class="text-xl font-medium">分</span></p>
+                            <ul class="text-base space-y-2 text-[var(--text-secondary)] list-disc list-inside">
+                                <li>玉林小酒: 10.0%</li>
+                                <li>水溶C100: 79.5%</li>
+                                <li>苏打水: 10.5%</li>
+                            </ul>
+                            <div class="ai-insight-box mt-4">
+                                <p>
+                                    SVR模型提供的配方同样优秀，与BP-GA结果相互验证了优化方向的可靠性。
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="ai-insight-box mt-6">
+                        <h4>综合业务建议：</h4>
+                        <p>
+                            两种优化模型均给出了高分配方，其中BP-GA模型预测得分略高。建议企业优先考虑BP-GA推荐的配方进行下一轮市场验证，并持续监控用户反馈。平台能够通过精准配方推荐，显著缩短产品研发周期，降低试错成本，助力企业快速推出市场爆款。
+                        </p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section 3: Reviewer Management -->
+            <section id="reviewer-management" class="space-y-8">
+                <h2 class="text-4xl font-bold text-[var(--text-primary)]">评客管理与贡献修正</h2>
+                <p class="text-xl text-[var(--text-secondary)] leading-relaxed">
+                    评客是平台价值共创的核心。本节展示了如何量化评客的贡献，并引入了独特的“样本追责”机制。当新产品获得市场成功后，系统会根据评客的初始评价准确性，动态修正其贡献量与星级，实现公平激励与持续优化。
+                </p>
+
+                <div class="kpi-grid">
+                    <div class="kpi-item">
+                        <div class="value" id="reviewer-total-count">--</div>
+                        <div class="label">平台评客总数</div>
+                    </div>
+                    <div class="kpi-item">
+                        <div class="value" id="reviewer-avg-contribution">--</div>
+                        <div class="label">平均评客贡献量</div>
+                    </div>
+                    <div class="kpi-item">
+                        <div class="value" id="reviewer-5-star-count">--</div>
+                        <div class="label">5星评客数量 (修正后)</div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
+                        <div>
+                            <h3 class="font-bold text-xl text-[var(--color-primary)]">评客贡献量修正模拟</h3>
+                            <p class="text-base text-[var(--text-secondary)]">模拟市场验证成功后，评客贡献量的动态变化，直观展示“样本追责”机制。此机制确保了评客评价的真实性和专业性。</p>
+                        </div>
+                        <button id="simulate-btn" class="btn">🔄 模拟市场反馈修正</button>
+                    </div>
+                    <div class="grid grid-cols-1 xl:grid-cols-3 gap-8">
+                        <div class="xl:col-span-2">
+                            <div class="chart-container h-[500px] max-h-[60vh]">
+                                <canvas id="reviewerContributionsChart"></canvas>
+                            </div>
+                        </div>
+                        <div>
+                            <h4 class="font-semibold text-lg text-center mb-4 text-[var(--color-primary)]">星级分布变化</h4>
+                            <div class="chart-container h-[230px] max-h-[25vh]">
+                                <canvas id="starDistributionChart"></canvas>
+                            </div>
+                            <div class="mt-8 overflow-x-auto">
+                                <h4 class="font-semibold text-lg text-center mb-4 text-[var(--color-primary)]">代表性评客变化</h4>
+                                <table class="w-full text-base text-left border-collapse">
+                                    <thead class="text-sm text-[var(--text-secondary)] uppercase bg-[var(--bg-main)]">
+                                        <tr>
+                                            <th class="px-4 py-3 border-b border-[var(--border-color)]">评客</th>
+                                            <th class="px-4 py-3 border-b border-[var(--border-color)]">贡献量 (%)</th>
+                                            <th class="px-4 py-3 border-b border-[var(--border-color)]">星级</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="reviewer-table-body">
+                                        <!-- JS will populate this -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="ai-insight-box mt-6">
+                        <h4>业务价值与评客生态：</h4>
+                        <p>
+                            “样本追责”机制有效激励了评客提供更准确、更负责任的评价。通过动态调整贡献量和星级，平台能够筛选出真正有价值的专业评客，为企业提供高质量、可信赖的众包数据，降低决策风险，并构建一个健康、高效的评客生态系统。
+                        </p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section 4: Core Algorithms -->
+            <section id="algorithms" class="space-y-8">
+                <h2 class="text-4xl font-bold text-[var(--text-primary)]">核心算法解析</h2>
+                <p class="text-xl text-[var(--text-secondary)] leading-relaxed">
+                    平台的智能决策能力由一系列创新算法驱动。这些算法协同工作，将分散、主观的用户评价转化为可靠、可操作的商业洞察，是实现用户中心主义智能制造的核心。
+                </p>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <div class="card">
+                        <h3 class="font-bold text-xl mb-3 text-[var(--color-primary)]">CPDFWA 算法</h3>
+                        <p class="text-base text-[var(--text-secondary)]">用户业务熟悉度概率密度函数加权平均算法。它通过加权融合群体评价，智能校准主观打分，有效过滤噪声数据，得出更可靠的产品综合分。</p>
+                        <div class="ai-insight-box mt-4 p-3">
+                            <p class="text-sm">
+                                <strong>业务价值：</strong> 确保用户评价的客观性与可靠性，为产品决策提供坚实数据基础。
+                            </p>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <h3 class="font-bold text-xl mb-3 text-[var(--color-primary)]">评客贡献量算法</h3>
+                        <p class="text-base text-[var(--text-secondary)]">量化每位评客在评价过程中的贡献。它解决了价值共生场景下工作量证明的难题，为实现公平的“评价薪酬”激励提供了基础。</p>
+                        <div class="ai-insight-box mt-4 p-3">
+                            <p class="text-sm">
+                                <strong>业务价值：</strong> 激励高质量评客参与，构建活跃且专业的评客社区。
+                            </p>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <h3 class="font-bold text-xl mb-3 text-[var(--color-primary)]">市场反馈修正算法</h3>
+                        <p class="text-base text-[var(--text-secondary)]">平台最具创新性的机制。它将产品的最终市场表现与评客的初始评价挂钩，对贡献量和星级进行二次修正，形成“样本追责”闭环。</p>
+                        <div class="ai-insight-box mt-4 p-3">
+                            <p class="text-sm">
+                                <strong>业务价值：</strong> 持续优化评客质量，确保平台数据与市场实际表现高度一致，降低企业决策风险。
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+        </div>
+    </main>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+
+    // --- Data Storage ---
+    const AppData = {
+        productScores: [
+            { id: 'A', score: 79 }, { id: 'B', score: 75 }, { id: 'C', score: 72 },
+            { id: 'D', score: 68 }, { id: 'E', score: 59 }, { id: 'F', score: 92 },
+            { id: 'G', score: 51 }, { id: 'H', score: 51 }, { id: 'I', score: 49 },
+            { id: 'J', score: 43 }, { id: 'K', score: 56 }, { id: 'L', score: 66 },
+            { id: 'M', score: 54 }, { id: 'N', score: 73 }, { id: 'O', score: 53 },
+            { id: 'P', score: 56 }, { id: 'Q', score: 61 }, { id: 'R', score: 78 },
+            { id: 'S', score: 67 }, { id: 'T', score: 56 }, { id: 'U', score: 72 },
+            { id: 'V', score: 64 }, { id: 'W', score: 61 }, { id: 'X', score: 62 },
+            { id: 'Y', score: 57 }
+        ],
+        reviewerContributions: [
+            { name: '刘婵玲', original_contribution: 83.33, adjusted_contribution: 78.63, original_star: 4, adjusted_star: 3 },
+            { name: '宋 江', original_contribution: 64.04, adjusted_contribution: 81.41, original_star: 2, adjusted_star: 4 },
+            { name: '邱海峰', original_contribution: 44.74, adjusted_contribution: 93.44, original_star: 0, adjusted_star: 4 },
+            { name: '王丽娟', original_contribution: 49.12, adjusted_contribution: 79.53, original_star: 1, adjusted_star: 3 },
+            { name: '丁宝苍', original_contribution: 49.12, adjusted_contribution: 86.31, original_star: 1, adjusted_star: 4 },
+            { name: '赵宗莹', original_contribution: 28.07, adjusted_contribution: 84.00, original_star: 0, adjusted_star: 4 },
+            { name: '游银川', original_contribution: 80.70, adjusted_contribution: 88.56, original_star: 4, adjusted_star: 4 },
+            { name: '宋新伟', original_contribution: 35.09, adjusted_contribution: 82.71, original_star: 0, adjusted_star: 4 },
+            { name: '贺俊杰', original_contribution: 48.25, adjusted_contribution: 95.43, original_star: 1, adjusted_star: 5 },
+            { name: '廖正源', original_contribution: 34.21, adjusted_contribution: 87.48, original_star: 0, adjusted_star: 4 },
+            { name: '向迎春', original_contribution: 52.63, adjusted_contribution: 92.32, original_star: 2, adjusted_star: 4 },
+            { name: '董玉平', original_contribution: 27.19, adjusted_contribution: 74.11, original_star: 0, adjusted_star: 3 },
+            { name: '李 杨', original_contribution: 57.02, adjusted_contribution: 90.52, original_star: 2, adjusted_star: 4 },
+            { name: '王祚祺', original_contribution: 35.96, adjusted_contribution: 83.19, original_star: 0, adjusted_star: 4 },
+            { name: '李 坤', original_contribution: 52.63, adjusted_contribution: 88.18, original_star: 2, adjusted_star: 4 },
+            { name: '胡晨硕', original_contribution: 66.67, adjusted_contribution: 100.00, original_star: 3, adjusted_star: 5 },
+            { name: '彭沙沙', original_contribution: 50.88, adjusted_contribution: 82.06, original_star: 1, adjusted_star: 4 },
+            { name: '谭 李', original_contribution: 49.12, adjusted_contribution: 85.77, original_star: 1, adjusted_star: 4 },
+            { name: '何 勇', original_contribution: 62.28, adjusted_contribution: 97.60, original_star: 2, adjusted_star: 5 },
+            { name: '曾 巧', original_contribution: 87.72, adjusted_contribution: 99.21, original_star: 4, adjusted_star: 5 },
+            { name: '蒋红益', original_contribution: 37.72, adjusted_contribution: 89.47, original_star: 0, adjusted_star: 4 },
+            { name: '周 栏', original_contribution: 55.26, adjusted_contribution: 82.66, original_star: 2, adjusted_star: 4 },
+            { name: '邹 菲', original_contribution: 100.00, adjusted_contribution: 28.33, original_star: 5, adjusted_star: 0 },
+            { name: '周绿平', original_contribution: 100.00, adjusted_contribution: 28.33, original_star: 5, adjusted_star: 0 },
+            { name: '罗洋雪绮', original_contribution: 76.32, adjusted_contribution: 21.62, original_star: 3, adjusted_star: 0 },
+            { name: '程 诚', original_contribution: 83.33, adjusted_contribution: 23.61, original_star: 4, adjusted_star: 0 },
+        ].sort((a, b) => b.original_contribution - a.original_contribution),
+        representativeReviewers: ['刘婵玲', '邹 菲', '邱海峰', '贺俊杰', '曾 巧', '罗洋雪绮']
+    };
+
+    // --- Chart instances ---
+    let productScoresChart, reviewerContributionsChart, starDistributionChart;
+    let isAdjusted = false;
+
+    // --- Chart.js Global Config ---
+    Chart.defaults.font.family = "'Inter', 'Noto Sans SC', sans-serif";
+    Chart.defaults.color = getComputedStyle(document.documentElement).getPropertyValue('--text-secondary').trim(); // Use CSS variable for chart text color
+
+    // --- KPI Update Functions ---
+    function updateProductKPIs() {
+        const scores = AppData.productScores.map(p => p.score);
+        const highestScore = Math.max(...scores);
+        const averageScore = (scores.reduce((sum, s) => sum + s, 0) / scores.length).toFixed(2);
+        const evaluatedCount = scores.length;
+
+        document.getElementById('product-highest-score').textContent = highestScore;
+        document.getElementById('product-average-score').textContent = averageScore;
+        document.getElementById('product-evaluated-count').textContent = evaluatedCount;
+    }
+
+    function updateReviewerKPIs(adjusted = false) {
+        const totalReviewers = AppData.reviewerContributions.length;
+        const contributionKey = adjusted ? 'adjusted_contribution' : 'original_contribution';
+        const starKey = adjusted ? 'adjusted_star' : 'original_star';
+
+        const avgContribution = (AppData.reviewerContributions.reduce((sum, r) => sum + r[contributionKey], 0) / totalReviewers).toFixed(2);
+        const fiveStarCount = AppData.reviewerContributions.filter(r => r[starKey] === 5).length;
+
+        document.getElementById('reviewer-total-count').textContent = totalReviewers;
+        document.getElementById('reviewer-avg-contribution').textContent = `${avgContribution}%`;
+        document.getElementById('reviewer-5-star-count').textContent = fiveStarCount;
+    }
+
+    // --- Chart Creation Functions ---
+    function createProductScoresChart() {
+        const ctx = document.getElementById('productScoresChart').getContext('2d');
+        const sortedData = [...AppData.productScores].sort((a, b) => b.score - a.score);
+        productScoresChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: sortedData.map(p => `产品 ${p.id}`),
+                datasets: [{
+                    label: '综合得分',
+                    data: sortedData.map(p => p.score),
+                    backgroundColor: getComputedStyle(document.documentElement).getPropertyValue('--color-primary').trim(),
+                    borderColor: getComputedStyle(document.documentElement).getPropertyValue('--color-primary').trim(),
+                    borderWidth: 1,
+                    borderRadius: 4,
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            label: (context) => `得分: ${context.parsed.y}`
+                        }
+                    },
+                    title: {
+                        display: true,
+                        text: '各款风味小酒综合得分',
+                        color: Chart.defaults.color,
+                        font: { size: 16, weight: 'bold' }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: { display: true, text: '得分', color: Chart.defaults.color }
+                    },
+                    x: {
+                        title: { display: true, text: '产品编号', color: Chart.defaults.color }
+                    }
+                }
+            }
+        });
+    }
+
+    function createReviewerContributionsChart(adjusted = false) {
+        const ctx = document.getElementById('reviewerContributionsChart').getContext('2d');
+        const dataKey = adjusted ? 'adjusted_contribution' : 'original_contribution';
+        const sortedData = [...AppData.reviewerContributions].sort((a, b) => b[dataKey] - a[dataKey]);
+
+        const chartData = {
+            labels: sortedData.map(r => r.name),
+            datasets: [{
+                label: adjusted ? '修正后贡献量 (%)' : '原始贡献量 (%)',
+                data: sortedData.map(r => r[dataKey]),
+                backgroundColor: adjusted ? getComputedStyle(document.documentElement).getPropertyValue('--color-accent-positive').trim() : getComputedStyle(document.documentElement).getPropertyValue('--color-primary').trim(),
+                borderRadius: 4,
+            }]
+        };
+
+        if (reviewerContributionsChart) {
+            reviewerContributionsChart.data = chartData;
+            reviewerContributionsChart.options.plugins.title.text = adjusted ? '评客贡献量 (市场反馈修正后)' : '评客贡献量 (原始)';
+            reviewerContributionsChart.data.datasets[0].label = adjusted ? '修正后贡献量 (%)' : '原始贡献量 (%)';
+            reviewerContributionsChart.data.datasets[0].backgroundColor = adjusted ? getComputedStyle(document.documentElement).getPropertyValue('--color-accent-positive').trim() : getComputedStyle(document.documentElement).getPropertyValue('--color-primary').trim();
+            reviewerContributionsChart.update();
+        } else {
+            reviewerContributionsChart = new Chart(ctx, {
+                type: 'bar',
+                data: chartData,
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    indexAxis: 'y',
+                    plugins: {
+                        legend: { display: false },
+                        title: { display: true, text: '评客贡献量 (原始)', padding: { bottom: 20 }, color: Chart.defaults.color, font: { size: 16, weight: 'bold' } },
+                        tooltip: {
+                            callbacks: {
+                                label: (context) => `贡献量: ${context.parsed.x.toFixed(2)}%`
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            beginAtZero: true,
+                            title: { display: true, text: '贡献量 (%)', color: Chart.defaults.color }
+                        },
+                        y: {
+                            ticks: { font: { size: 10 }, color: Chart.defaults.color }
+                        }
+                    }
+                }
+            });
+        }
+    }
+
+    function createStarDistributionChart(adjusted = false) {
+        const ctx = document.getElementById('starDistributionChart').getContext('2d');
+        const starKey = adjusted ? 'adjusted_star' : 'original_star';
+        const starCounts = [0, 0, 0, 0, 0, 0]; // 0 to 5 stars
+        AppData.reviewerContributions.forEach(r => {
+            starCounts[r[starKey]]++;
+        });
+
+        const chartData = {
+            labels: ['0星', '1星', '2星', '3星', '4星', '5星'],
+            datasets: [{
+                label: '评客数量',
+                data: starCounts,
+                backgroundColor: [
+                    '#BDC3C7', /* Grey for 0 star */
+                    '#95A5A6', /* Darker Grey for 1 star */
+                    '#7F8C8D', /* Even Darker Grey for 2 star */
+                    getComputedStyle(document.documentElement).getPropertyValue('--color-primary').trim(), /* Primary for 3 star */
+                    getComputedStyle(document.documentElement).getPropertyValue('--color-accent-positive').trim(), /* Positive for 4 star */
+                    '#F39C12' /* Gold/Orange for 5 star */
+                ],
+                borderColor: getComputedStyle(document.documentElement).getPropertyValue('--bg-card').trim(),
+                borderWidth: 2,
+            }]
+        };
+
+        if (starDistributionChart) {
+            starDistributionChart.data = chartData;
+            starDistributionChart.options.plugins.title.text = adjusted ? '星级分布 (修正后)' : '星级分布 (原始)';
+            starDistributionChart.update();
+        } else {
+            starDistributionChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: chartData,
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { 
+                            position: 'right',
+                            labels: {
+                                color: Chart.defaults.color
+                            }
+                        },
+                        title: { display: true, text: '星级分布 (原始)', color: Chart.defaults.color, font: { size: 16, weight: 'bold' } }
+                    }
+                }
+            });
+        }
+    }
+
+    // --- UI Update Functions ---
+    function updateReviewerTable(adjusted = false) {
+        const tableBody = document.getElementById('reviewer-table-body');
+        tableBody.innerHTML = '';
+        const contributionKey = adjusted ? 'adjusted_contribution' : 'original_contribution';
+        const starKey = adjusted ? 'adjusted_star' : 'original_star';
+
+        // Sort by contribution for better readability in the table
+        const sortedReviewers = [...AppData.reviewerContributions].sort((a, b) => b[contributionKey] - a[contributionKey]);
+
+        // Only show a subset of top reviewers for brevity in the table, but ensure representative ones are included
+        const displayReviewers = sortedReviewers.filter(r => AppData.representativeReviewers.includes(r.name) || r[contributionKey] > 80 || r[contributionKey] < 30).slice(0, 10); // Show top 10 or representative
+
+        displayReviewers.forEach(reviewer => {
+            const isIncreased = reviewer.adjusted_contribution > reviewer.original_contribution;
+            const changeClass = adjusted ? (isIncreased ? 'change-positive' : 'change-negative') : '';
+            const changeIcon = adjusted ? (isIncreased ? '▲' : '▼') : '';
+            
+            const row = `
+                <tr>
+                    <td class="px-4 py-2 border-b border-[var(--border-color)]">${reviewer.name}</td>
+                    <td class="px-4 py-2 border-b border-[var(--border-color)] font-semibold ${changeClass}">
+                        ${reviewer[contributionKey].toFixed(2)}% ${changeIcon}
+                    </td>
+                    <td class="px-4 py-2 border-b border-[var(--border-color)] text-lg ${changeClass}">${'⭐'.repeat(reviewer[starKey]) || '➖'}</td>
+                </tr>
+            `;
+            tableBody.innerHTML += row;
+        });
+    }
+
+    // --- Event Listeners ---
+    document.getElementById('simulate-btn').addEventListener('click', () => {
+        isAdjusted = !isAdjusted;
+        createReviewerContributionsChart(isAdjusted);
+        createStarDistributionChart(isAdjusted);
+        updateReviewerTable(isAdjusted);
+        updateReviewerKPIs(isAdjusted); // Update KPIs after simulation
+        const btn = document.getElementById('simulate-btn');
+        btn.innerHTML = isAdjusted ? '🔄 恢复原始状态' : '🔄 模拟市场反馈修正';
+    });
+    
+    // Sidebar Navigation Logic
+    const navLinks = document.querySelectorAll('#sidebar-nav a');
+    const sections = document.querySelectorAll('main section');
+
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                navLinks.forEach(link => {
+                    link.classList.remove('active');
+                    if (link.getAttribute('href').substring(1) === entry.target.id) {
+                        link.classList.add('active');
+                    }
+                });
+            }
+        });
+    }, { rootMargin: "-30% 0px -70% 0px" }); // Adjusted rootMargin for better section highlighting
+
+    sections.forEach(section => observer.observe(section));
+
+    // --- Initialization ---
+    function init() {
+        createProductScoresChart();
+        createReviewerContributionsChart(false);
+        createStarDistributionChart(false);
+        updateReviewerTable(false);
+        updateProductKPIs(); // Initial KPI update for products
+        updateReviewerKPIs(false); // Initial KPI update for reviewers
+    }
+
+    init();
+});
+</script>
+
+</body>
+</html>
